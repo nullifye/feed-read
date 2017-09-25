@@ -49,7 +49,7 @@ FeedRead.identify = function(xml) {
   } else {
     return false;
   }
-}
+};
 
 
 
@@ -59,7 +59,7 @@ FeedRead.identify = function(xml) {
 // callback - Receives `(err, articles)`.
 // 
 FeedRead.get = function(feed_url, callback) {
-  request(feed_url, {timeout: 5000}, function(err, res, body) {
+  request({url: feed_url, timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0' }}, function(err, res, body) {
     if (err) return callback(err);
     var type = FeedRead.identify(body);
     if (type == "atom") {
@@ -124,7 +124,7 @@ FeedRead.atom = function(xml, source, callback) {
           , published: child_data(art, "published")
                     || child_data(art, "updated")
           , author:    author || default_author
-          , link:      child_by_name(art, "link").attributes.href
+          , link:      (child_by_name(art, "feedburner:origLink") && child_by_name(art, "feedburner:origLink").children[0]) || child_by_name_attr(art, "link", "alternate").attributes.href || child_by_name(art, "link").attributes.href
           , feed:      meta
           };
         if (obj.published) obj.published = new Date(obj.published);
@@ -180,7 +180,7 @@ FeedRead.rss = function(xml, source, callback) {
           , published: child_data(art, "pubDate")
           , author:    child_data(art, "author")
                     || child_data(art, "dc:creator")
-          , link:      child_data(art, "link")
+          , link:      child_data(art, "feedburner:origLink") || child_data_attr(art, "link", "alternate") || child_data(art, "link")
           , feed:      meta
           };
         if (obj.published) obj.published = new Date(obj.published);
@@ -216,7 +216,7 @@ var FeedParser = (function() {
     parser.onopentag  = function(tag) { _this.open(tag); };
     parser.onclosetag = function(tag) { _this.close(tag); };
     
-    parser.onerror = function() { this.error = undefined; }
+    parser.onerror = function() { this.error = undefined; };
     parser.ontext  = function(text) { _this.ontext(text); };
     parser.oncdata = function(text) { _this.ontext(text); };
     parser.onend   = function() { _this.onend(); };
@@ -287,7 +287,24 @@ function child_by_name(parent, name) {
 // Internal: Get the first child of `parent` with `name`,
 // and return the text of its children.
 function child_data(parent, name) {
-  var node     = child_by_name(parent, name)
+  var node = child_by_name(parent, name);
+  if (!node) return "";
+  var children = node.children;
+  if (!children.length) return "";
+  return children.join("");
+}
+
+// get link for Blogger
+function child_by_name_attr(parent, name, attr) {
+  var children = parent.children || [];
+  for (var i = 0; i < children.length; i++) {
+    if (children[i].name == name && children[i].attributes.rel == attr) return children[i];
+  }
+  return null;
+}
+
+function child_data_attr(parent, name, attr) {
+  var node = child_by_name_attr(parent, name, attr);
   if (!node) return "";
   var children = node.children;
   if (!children.length) return "";
