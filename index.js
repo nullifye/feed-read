@@ -49,7 +49,7 @@ FeedRead.identify = function(xml) {
   } else {
     return false;
   }
-}
+};
 
 
 
@@ -216,7 +216,7 @@ var FeedParser = (function() {
     parser.onopentag  = function(tag) { _this.open(tag); };
     parser.onclosetag = function(tag) { _this.close(tag); };
     
-    parser.onerror = function() { this.error = undefined; }
+    parser.onerror = function() { this.error = undefined; };
     parser.ontext  = function(text) { _this.ontext(text); };
     parser.oncdata = function(text) { _this.ontext(text); };
     parser.onend   = function() { _this.onend(); };
@@ -287,7 +287,7 @@ function child_by_name(parent, name) {
 // Internal: Get the first child of `parent` with `name`,
 // and return the text of its children.
 function child_data(parent, name) {
-  var node     = child_by_name(parent, name)
+  var node = child_by_name(parent, name);
   if (!node) return "";
   var children = node.children;
   if (!children.length) return "";
@@ -304,7 +304,7 @@ function child_by_name_attr(parent, name, attr) {
 }
 
 function child_data_attr(parent, name, attr) {
-  var node     = child_by_name_attr(parent, name, attr)
+  var node = child_by_name_attr(parent, name, attr);
   if (!node) return "";
   var children = node.children;
   if (!children.length) return "";
