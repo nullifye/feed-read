@@ -59,7 +59,7 @@ FeedRead.identify = function(xml) {
 // callback - Receives `(err, articles)`.
 // 
 FeedRead.get = function(feed_url, callback) {
-  request({url: feed_url, headers: { 'User-Agent': 'Mozilla/5.0' }}, {timeout: 5000}, function(err, res, body) {
+  request({url: feed_url, timeout: 5000, headers: { 'User-Agent': 'Mozilla/5.0' }}, function(err, res, body) {
     if (err) return callback(err);
     var type = FeedRead.identify(body);
     if (type == "atom") {
